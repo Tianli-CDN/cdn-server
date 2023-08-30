@@ -1,0 +1,50 @@
+name: Go Release Action
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Get commit messages since last tag
+      id: get_commit_messages
+      run: |
+        LAST_TAG=$(git describe --tags --abbrev=0)
+        COMMIT_MESSAGES=$(git log --format=%B $LAST_TAG..HEAD)
+        echo "::set-output name=messages::$COMMIT_MESSAGES"
+      
+    - name: Set up macOS environment
+      run: |
+        brew install FiloSottile/musl-cross/musl-cross 
+      
+    - name: Build binaries
+      run: GOOS=linux CC="/usr/local/bin/x86_64-linux-musl-gcc" GOARCH=amd64 CGO_ENABLED=1  go build -o tianlicdn-linux-amd64 -v -tags 'osusergo netgo static_build' -ldflags '-extldflags "-static"' .
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: ${{ steps.get_commit_messages.outputs.messages }}
+        draft: false
+        prerelease: false
+      
+    - name: Upload Linux Binary
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./tianlicdn-linux-amd64
+        asset_name: tianlicdn-linux-amd64
+        asset_content_type: application/octet-stream
