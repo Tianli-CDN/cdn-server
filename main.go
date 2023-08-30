@@ -3,7 +3,6 @@ package main
 import (
 	"embed"
 	"fmt"
-	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -18,12 +17,6 @@ var (
 var (
 	//go:embed source/thesaurus.txt
 	thesaurusData embed.FS
-	//go:embed source/index.html
-	indexHtml embed.FS
-	//go:embed source/index.js
-	indexJs embed.FS
-	//go:embed source/index.css
-	indexCss embed.FS
 )
 
 func main() {
@@ -65,17 +58,8 @@ func main() {
 
 	router.Static("/static", "./static")
 	router.StaticFile("/favicon.ico", "./favicon.ico")
-
-	router.GET("/", func(c *gin.Context) {
-		http.FileServer(http.FS(indexHtml)).ServeHTTP(c.Writer, c.Request)
-	})
-
-	router.GET("/index.js", func(c *gin.Context) {
-		http.FileServer(http.FS(indexJs)).ServeHTTP(c.Writer, c.Request)
-	})
-	router.GET("/index.css", func(c *gin.Context) {
-		http.FileServer(http.FS(indexCss)).ServeHTTP(c.Writer, c.Request)
-	})
-
+	router.StaticFile("/", "./source/index.html")
+	router.StaticFile("/index.js", "./source/index.js")
+	router.StaticFile("/index.css", "./source/index.css")
 	router.Run(":5012")
 }
