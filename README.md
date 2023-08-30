@@ -1,5 +1,6 @@
 # Tianli-cdn-server 恭喜你发现屎山！！！
 调用API文档：https://console-docs.apipost.cn/preview/877a53de056aef04/6f7d9d05f50db9e6
+注意：库包含CGO，不支持交叉编译，同时尽量不要使用linux编译，可能会缺glibc
 
 ## 部署
 
