@@ -206,8 +206,9 @@ func makeLocalRequest(pathAll string) (*HTTPResponse, error) {
 	pathAll = pathAll[strings.Index(pathAll, "/")+1:]
 
 	if firstDir == "gh" {
-		pack := pathAll[:strings.Index(pathAll[strings.Index(pathAll, "/")+1:], "/")+1]
-		file := pathAll[strings.Index(pathAll[strings.Index(pathAll, "/")+1:], "/")+1:]
+		pack := pathAll[:strings.Index(pathAll, "/")]
+		pathAll = pathAll[strings.Index(pathAll, "/")+1:]
+		file := pathAll[strings.Index(pathAll, "/")+1:]
 		re := regexp.MustCompile(`@([^/]+)`)
 		match := re.FindStringSubmatch(file)
 		var version string
@@ -218,9 +219,9 @@ func makeLocalRequest(pathAll string) (*HTTPResponse, error) {
 			version = "main"
 		}
 
-		url := fmt.Sprintf("%s%s/%s%s", ghrawPrefix, pack, version, file)
+		// 拼接URL，源：https://raw.githubusercontent.com/%s/%s/%s
+		url := fmt.Sprintf("%s%s/Source/%s/%s", ghrawPrefix, pack, version, file)
 		fmt.Println("源请求URL：" + url)
-
 		req, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
 			return nil, fmt.Errorf("创建请求失败: %v", err)
@@ -230,8 +231,21 @@ func makeLocalRequest(pathAll string) (*HTTPResponse, error) {
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
-			return nil, fmt.Errorf("请求失败: %v", err)
+
+			url := fmt.Sprintf("%s%s/Source/%s/%s", ghrawPrefix, pack, "master", file)
+			fmt.Println("重试请求URL：" + url)
+
+			req, err = http.NewRequest(http.MethodGet, url, nil)
+			if err != nil {
+				return nil, fmt.Errorf("创建请求失败: %v", err)
+			}
+
+			resp, err = http.DefaultClient.Do(req)
+			if err != nil {
+				return nil, fmt.Errorf("请求失败: %v", err)
+			}
 		}
+
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
