@@ -1,12 +1,12 @@
 # Tianli-cdn-server 恭喜你发现屎山！！！
 调用API文档：https://console-docs.apipost.cn/preview/877a53de056aef04/6f7d9d05f50db9e6
-注意：库包含CGO，不支持交叉编译，同时尽量不要使用linux编译，可能会缺glibc
+注意：库包含CGO，不支持交叉编译，同时尽量不要使用linux编译，可能会缺glibc，可以用action编译。
 
 ## 部署
 
 1. 确保安装redis
 
-2. 确保启用NSFW-api
+2. 可选启用NSFW-api
 
    ```bash
    docker run -p 6012:3000 ghcr.io/arnidan/nsfw-api:latest
@@ -25,7 +25,7 @@
 ## 文件清单（运行时程序自动创建）
 
 1. `.env`：配置文件
-2. `blacklist.json`：黑名单信息
+2. `blacklist.json`：黑名单信息，仓库仅做示例
 3. `thesaurus.txt`：base64编码后的黑名单词库，主要为摄政词库
 
 ## 默认返回
