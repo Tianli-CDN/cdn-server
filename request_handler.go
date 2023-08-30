@@ -220,7 +220,7 @@ func makeLocalRequest(pathAll string) (*HTTPResponse, error) {
 		}
 
 		// 拼接URL，源：https://raw.githubusercontent.com/%s/%s/%s
-		url := fmt.Sprintf("%s%s/Source/%s/%s", ghrawPrefix, pack, version, file)
+		url := fmt.Sprintf("%s%s/%s/%s", ghrawPrefix, pack, version, file)
 		fmt.Println("源请求URL：" + url)
 		req, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
@@ -232,7 +232,7 @@ func makeLocalRequest(pathAll string) (*HTTPResponse, error) {
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 
-			url := fmt.Sprintf("%s%s/Source/%s/%s", ghrawPrefix, pack, "master", file)
+			url := fmt.Sprintf("%s%s/%s/%s", ghrawPrefix, pack, "master", file)
 			fmt.Println("重试请求URL：" + url)
 
 			req, err = http.NewRequest(http.MethodGet, url, nil)
