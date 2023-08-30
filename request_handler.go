@@ -270,10 +270,16 @@ func makeLocalRequest(pathAll string) (*HTTPResponse, error) {
 
 	} else if firstDir == "npm" {
 		packWithVersion := pathAll[:strings.Index(pathAll, "/")]
-		pack := packWithVersion[:strings.Index(packWithVersion, "@")]
-		version := packWithVersion[strings.Index(packWithVersion, "@")+1:]
+		pack := packWithVersion
+		version := "latest"
 		file := pathAll[strings.Index(pathAll, "/")+1:]
 
+		if strings.Contains(packWithVersion, "@") {
+			pack = packWithVersion[:strings.Index(packWithVersion, "@")]
+			version = packWithVersion[strings.Index(packWithVersion, "@")+1:]
+		}
+
+		// 拼接URL，源：https://registry.npmmirror.com/%s/%s/files/dist/%s
 		url := fmt.Sprintf("%s%s/%s/files/dist/%s", npmPrefix, pack, version, file)
 		fmt.Println("源请求URL：" + url)
 
