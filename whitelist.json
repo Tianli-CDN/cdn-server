@@ -1,0 +1,19 @@
+{
+    "pathlist": [
+      {
+        "path": "/gh/",
+        "reason": "敏感数据"
+      },
+      {
+        "path": "/admin",
+        "reason": "管理员访问"
+      }
+    ],
+    "referlist": [
+      {
+        "refer": "baidu.com",
+        "reason": "测试"
+      }
+    ]
+  }
+  

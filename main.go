@@ -12,6 +12,7 @@ import (
 var (
 	redisClient *redis.Client
 	blacklist   Blacklist
+	whitelist   Whitelist
 )
 
 var (
@@ -25,11 +26,11 @@ func main() {
 
 	// 初始化Redis客户端
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       5,
+		Addr:     Redis_addr,
+		Password: Redis_password,
+		DB:       Redis_DB_int, // 使用DB5作为缓存数据库
 	})
-
+	loadWhitelist()
 	loadBlacklist()
 
 	_, err := redisClient.Ping().Result()
@@ -49,8 +50,11 @@ func main() {
 	api := router.Group("/api")
 	{
 		api.GET("/blacklist", getBlacklist)
-		api.POST("/update_path", updatePathBlacklist)
-		api.POST("/update_refer", updateReferBlacklist)
+		api.POST("/blacklist/update_path", updatePathBlacklist)
+		api.POST("/blacklist/update_refer", updateReferBlacklist)
+		api.GET("/whitelist", getWhitelist)
+		api.POST("/whitelist/update_path", updatePathWhitelist)
+		api.POST("/whitelist/update_refer", updateReferWhitelist)
 	}
 
 	// 设置请求处理函数

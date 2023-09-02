@@ -1,12 +1,12 @@
 # Tianli-cdn-server 恭喜你发现屎山！！！
 调用API文档：https://console-docs.apipost.cn/preview/877a53de056aef04/6f7d9d05f50db9e6
-注意：库包含CGO，不支持交叉编译，同时尽量不要使用linux编译，可能会缺glibc，可以用action编译。
+注意：库包含CGO，不支持交叉编译，同时尽量不要使用linux编译，可能会缺glibc
 
 ## 部署
 
 1. 确保安装redis
 
-2. 可选启用NSFW-api
+2. 确保启用NSFW-api
 
    ```bash
    docker run -p 6012:3000 ghcr.io/arnidan/nsfw-api:latest
@@ -25,7 +25,7 @@
 ## 文件清单（运行时程序自动创建）
 
 1. `.env`：配置文件
-2. `blacklist.json`：黑名单信息，仓库仅做示例
+2. `blacklist.json`：黑名单信息
 3. `thesaurus.txt`：base64编码后的黑名单词库，主要为摄政词库
 
 ## 默认返回
@@ -47,7 +47,10 @@
 | GHRaw_PREFIX      | https://raw.githubusercontent.com/| Github raw代理地址 |
 | PROXY_MODE    | jsd                      | 镜像模式，填写jsd为jsd镜像，填写local为自取源      |
 | EXIPRES    | 6                      | 缓存过期时间      |
-
+| REDIS_ADDR      | localhost:6379 | redis服务器地址及端口 |
+| REDIS_PASSWORD    | 114514                     | redis密码，可以为空      |
+| REDIS_DB    | 5                      | redis使用数据库名，int，确保没有冲突再填写      |
+| RUN_MODE    | blacklist                      | 运行模式，可选blacklist or whitelist，运行模式为白名单或黑名单，白名单时将以白名单内内容做为校验，同时黑路径黑名单也会生效，黑名单与白名单参考blacklist.json和whitelist.json     |
 
 ## 图片处理
 

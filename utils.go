@@ -61,3 +61,7 @@ func checkKeywords(content string) bool {
 
 	return false
 }
+
+func isBlacklistMode() bool {
+	return RunMode == "blacklist"
+}

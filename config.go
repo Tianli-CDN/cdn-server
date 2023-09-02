@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
@@ -18,6 +19,11 @@ var (
 	proxyMode             string
 	ghrawPrefix           string
 	npmPrefix             string
+	Redis_addr            string
+	Redis_password        string
+	Redis_DB              string
+	Redis_DB_int          int
+	RunMode               string
 )
 
 func createConfigFile() {
@@ -37,6 +43,10 @@ func createConfigFile() {
 	file.WriteString("PROXY_MODE=jsd\n")
 	file.WriteString("GHRaw_PREFIX=https://raw.githubusercontent.com/\n")
 	file.WriteString("NPMMirrow_PREFIX=https://registry.npmmirror.com/\n")
+	file.WriteString("REDIS_ADDR=localhost:6379\n")
+	file.WriteString("REDIS_PASSWORD=\n")
+	file.WriteString("REDIS_DB=5\n")
+	file.WriteString("RUN_MODE=blacklist\n")
 }
 
 func loadconfig() {
@@ -60,7 +70,6 @@ func loadconfig() {
 		os.Exit(1)
 		return
 	}
-
 	apiKey = os.Getenv("API_KEY")
 	enableKeywordChecking = os.Getenv("ENABLE_KEYWORD_CHECKING") == "true"
 	enableNSFWChecking = os.Getenv("ENABLE_NSFW_CHECKING") == "true"
@@ -70,6 +79,21 @@ func loadconfig() {
 	proxyMode = os.Getenv("PROXY_MODE")
 	ghrawPrefix = os.Getenv("GHRaw_PREFIX")
 	npmPrefix = os.Getenv("NPMMirrow_PREFIX")
+	Redis_addr = os.Getenv("REDIS_ADDR")
+	Redis_password = os.Getenv("REDIS_PASSWORD")
+	Redis_DB = os.Getenv("REDIS_DB")
+	Redis_DB_int, err = strconv.Atoi(Redis_DB)
+	if err != nil {
+		Redis_DB_int = 5
+	}
+	RunMode = os.Getenv("RUN_MODE")
+
+	if apiKey == "" || pornStr == "" || jsdelivrPrefix == "" || expiresTimeStr == "" || proxyMode == "" || Redis_addr == "" || Redis_DB == "" || RunMode == "" {
+		fmt.Println("配置文件错误，已重置为默认配置")
+		createConfigFile()
+		os.Exit(1)
+		return
+	}
 
 	fmt.Println("API密钥:", apiKey)
 	fmt.Println("是否启用关键词检查:", enableKeywordChecking)
@@ -86,5 +110,9 @@ func loadconfig() {
 	} else {
 		fmt.Println("代理模式: 未知")
 	}
+	fmt.Println("Redis地址:", Redis_addr)
+	fmt.Println("Redis密码:", Redis_password)
+	fmt.Println("Redis数据库:", Redis_DB)
+	fmt.Println("运行模式:", RunMode)
 
 }
