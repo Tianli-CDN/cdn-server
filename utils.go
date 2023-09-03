@@ -77,7 +77,9 @@ func clearCache(c *gin.Context) {
 	}
 
 	redisClient.Del(path)
-	redisClient.Del(path + ":content-type")
+	go redisClient.Del(path + ":content-type")
+	go loadWhitelist()
+	go loadBlacklist()
 
 	c.JSON(http.StatusOK, gin.H{"message": "缓存已清除"})
 }
@@ -91,8 +93,8 @@ func clearAllcache(c *gin.Context) {
 
 	redisClient.FlushDB()
 
-	loadWhitelist()
-	loadBlacklist()
+	go loadWhitelist()
+	go loadBlacklist()
 
 	c.JSON(http.StatusOK, gin.H{"message": "所有缓存已清除"})
 }
