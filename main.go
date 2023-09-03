@@ -55,6 +55,8 @@ func main() {
 		api.GET("/whitelist", getWhitelist)
 		api.POST("/whitelist/update_path", updatePathWhitelist)
 		api.POST("/whitelist/update_refer", updateReferWhitelist)
+		api.POST("/clear_cache", clearCache)
+		api.POST("/clear_all_cache", clearAllcache)
 	}
 
 	// 设置请求处理函数

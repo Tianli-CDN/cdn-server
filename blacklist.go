@@ -120,7 +120,7 @@ func loadBlacklist() {
 
 	syncBlacklistToDB()
 
-	ticker := time.NewTicker(24 * time.Minute)
+	ticker := time.NewTicker(5 * time.Minute)
 	go func() {
 		for range ticker.C {
 			syncBlacklistToDB()

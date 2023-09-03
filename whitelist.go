@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +39,7 @@ func isRefererWhitelisted(referer string) bool {
 	if whitelist.AllowEmptyReferer && referer == "" {
 		return true
 	}
-	
+
 	for _, item := range whitelist.ReferList {
 		fmt.Printf("Against whitelist item: %s\n", item.Refer)
 		if strings.Contains(referer, item.Refer) {
@@ -53,13 +54,12 @@ func getWhitelist(c *gin.Context) {
 }
 
 func updatePathWhitelist(c *gin.Context) {
-	// 检查API密钥
+
 	if c.Query("key") != apiKey {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的API密钥"})
 		return
 	}
 
-	// 解析请求数据
 	var pathItem PathItem
 	if err := c.ShouldBindJSON(&pathItem); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的请求数据"})
@@ -69,10 +69,8 @@ func updatePathWhitelist(c *gin.Context) {
 	// 更新白名单数据
 	whitelist.PathList = append(whitelist.PathList, pathItem)
 
-	// 将白名单数据存储到Redis
 	syncWhitelistToDB()
 
-	// 将白名单数据存储到whitelist.json文件
 	whitelistData, _ := json.Marshal(whitelist)
 	os.WriteFile("whitelist.json", whitelistData, 0644)
 
@@ -80,7 +78,7 @@ func updatePathWhitelist(c *gin.Context) {
 }
 
 func updateReferWhitelist(c *gin.Context) {
-	// 检查API密钥
+
 	if c.Query("key") != apiKey {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的API密钥"})
 		return
@@ -93,13 +91,10 @@ func updateReferWhitelist(c *gin.Context) {
 		return
 	}
 
-	// 更新白名单数据
 	whitelist.ReferList = append(whitelist.ReferList, referItem)
 
-	// 将白名单数据存储到Redis
 	syncWhitelistToDB()
 
-	// 将白名单数据存储到whitelist.json文件
 	whitelistData, _ := json.Marshal(whitelist)
 	os.WriteFile("whitelist.json", whitelistData, 0644)
 
@@ -107,7 +102,7 @@ func updateReferWhitelist(c *gin.Context) {
 }
 
 func syncWhitelistToDB() {
-	// 将白名单数据存储到Redis
+
 	whitelistData, _ := json.Marshal(whitelist)
 	redisClient.Set("whitelist", string(whitelistData), 0)
 }
@@ -125,6 +120,12 @@ func loadWhitelist() {
 		return
 	}
 
-	// 将白名单数据存储到Redis
 	syncWhitelistToDB()
+
+	ticker := time.NewTicker(5 * time.Minute)
+	go func() {
+		for range ticker.C {
+			syncWhitelistToDB()
+		}
+	}()
 }

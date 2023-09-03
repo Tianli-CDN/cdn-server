@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func hitokoto() string {
@@ -64,4 +66,33 @@ func checkKeywords(content string) bool {
 
 func isBlacklistMode() bool {
 	return RunMode == "blacklist"
+}
+
+func clearCache(c *gin.Context) {
+
+	path := c.Query("path")
+	if path == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的路径"})
+		return
+	}
+
+	redisClient.Del(path)
+	redisClient.Del(path + ":content-type")
+
+	c.JSON(http.StatusOK, gin.H{"message": "缓存已清除"})
+}
+
+func clearAllcache(c *gin.Context) {
+
+	if c.Query("key") != apiKey {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的API密钥"})
+		return
+	}
+
+	redisClient.FlushDB()
+
+	loadWhitelist()
+	loadBlacklist()
+
+	c.JSON(http.StatusOK, gin.H{"message": "所有缓存已清除"})
 }
