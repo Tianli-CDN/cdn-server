@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -17,8 +18,8 @@ type Blacklist struct {
 }
 
 type PathItem struct {
-	Path   string `json:"path"`
-	Reason string `json:"reason"`
+	Paths  []string `json:"paths"`
+	Reason string   `json:"reason"`
 }
 
 type ReferItem struct {
@@ -33,8 +34,15 @@ func syncBlacklistToDB() {
 
 func isPathBlacklisted(path string) bool {
 	for _, item := range blacklist.PathList {
-		if strings.HasPrefix(path, item.Path) {
-			return true
+		for _, p := range item.Paths {
+			match, err := regexp.MatchString(p, path)
+			if err != nil {
+				fmt.Printf("正则匹配错误：%s", err)
+				continue
+			}
+			if match {
+				return true
+			}
 		}
 	}
 	return false

@@ -5,27 +5,42 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Whitelist struct {
-	PathList  []PathItem  `json:"pathlist"`
-	ReferList []ReferItem `json:"referlist"`
+	PathList          []PathItem  `json:"pathlist"`
+	ReferList         []ReferItem `json:"referlist"`
+	AllowEmptyReferer bool        `json:"allowEmptyReferer,omitempty"`
 }
 
 func isPathWhitelisted(path string) bool {
 	for _, item := range whitelist.PathList {
-		if strings.HasPrefix(path, item.Path) {
-			return true
+		for _, p := range item.Paths {
+			match, err := regexp.MatchString(p, path)
+			if err != nil {
+				fmt.Printf("正则匹配错误：%s", err)
+				continue
+			}
+			if match {
+				return true
+			}
 		}
 	}
 	return false
 }
 
 func isRefererWhitelisted(referer string) bool {
+	fmt.Printf("Checking referer: %s\n", referer) // 打印传入的 referer
+	if whitelist.AllowEmptyReferer && referer == "" {
+		return true
+	}
+	
 	for _, item := range whitelist.ReferList {
+		fmt.Printf("Against whitelist item: %s\n", item.Refer)
 		if strings.Contains(referer, item.Refer) {
 			return true
 		}
