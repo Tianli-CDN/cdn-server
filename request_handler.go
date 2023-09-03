@@ -138,7 +138,7 @@ func handleRequest(c *gin.Context) {
 		go func() {
 			if checkKeywords(string(body)) {
 				// 更新黑名单数据
-				blacklist.PathList = append(blacklist.PathList, PathItem{Path: "/" + pathAll, Reason: "内容包含违规关键词"})
+				blacklist.PathList = append(blacklist.PathList, PathItem{Paths: []string{"/" + pathAll}, Reason: "内容包含违规关键词"})
 
 				// 将黑名单数据存储到Redis
 				syncBlacklistToDB()
@@ -163,7 +163,7 @@ func handleRequest(c *gin.Context) {
 
 			if nsfwResult.NSFW {
 				// 更新黑名单数据
-				blacklist.PathList = append(blacklist.PathList, PathItem{Path: "/" + pathAll, Reason: "涩图，封禁"})
+				blacklist.PathList = append(blacklist.PathList, PathItem{Paths: []string{"/" + pathAll}, Reason: "涩图，封禁"})
 
 				// 将黑名单数据存储到Redis
 				syncBlacklistToDB()

@@ -1,19 +1,31 @@
 {
-    "pathlist": [
-      {
-        "path": "/gh/",
-        "reason": "敏感数据"
-      },
-      {
-        "path": "/admin",
-        "reason": "管理员访问"
-      }
-    ],
-    "referlist": [
-      {
-        "refer": "baidu.com",
-        "reason": "测试"
-      }
-    ]
-  }
-  
+  "pathlist": [
+    {
+      "paths": ["^/gh/.*$", "^/example/.*$"],
+      "reason": "敏感数据"
+    },
+    {
+      "paths": ["^/npm/.*$"],
+      "reason": "敏感数据"
+    },
+    {
+      "paths": ["^/sm/.*$"],
+      "reason": "敏感数据"
+    },
+    {
+      "paths": ["^/admin.*$"],
+      "reason": "非授权访问"
+    }
+  ],
+  "referlist": [
+    {
+      "refer": "baidu.com",
+      "reason": "测试"
+    },
+    {
+      "refer": "localhost",
+      "reason": "允许本地"
+    }
+  ],
+  "allowEmptyReferer": true
+}

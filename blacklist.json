@@ -1,23 +1,22 @@
 {
-    "pathlist": [
-      {
-        "path": "/private",
-        "reason": "敏感数据"
-      },
-      {
-        "path": "/admin",
-        "reason": "管理员访问"
-      }
-    ],
-    "referlist": [
-      {
-        "refer": "baidu.com",
-        "reason": "敏感数据"
-      },
-      {
-        "refer": "example.com",
-        "reason": "测试网站"
-      }
-    ]
-  }
-  
+  "pathlist": [
+    {
+      "paths": ["/private"],
+      "reason": "敏感数据"
+    },
+    {
+      "paths": ["/admin"],
+      "reason": "管理员访问"
+    }
+  ],
+  "referlist": [
+    {
+      "refer": "baidu.com",
+      "reason": "敏感数据"
+    },
+    {
+      "refer": "example.com",
+      "reason": "测试网站"
+    }
+  ]
+}
