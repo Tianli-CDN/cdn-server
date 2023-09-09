@@ -1,6 +1,12 @@
-# Tianli-cdn-server 恭喜你发现屎山！！！
-调用API文档：https://console-docs.apipost.cn/preview/877a53de056aef04/6f7d9d05f50db9e6
-注意：库包含CGO，不支持交叉编译，同时尽量不要使用linux编译，可能会缺glibc
+# Tianli-cdn-server (静态资源缓存服务器)
+
+## 恭喜你发现屎山！！！
+
+## 调用API文档：[API](https://console-docs.apipost.cn/preview/877a53de056aef04/6f7d9d05f50db9e6)
+
+注意：库包含CGO，不支持交叉编译，同时尽量不要使用linux编译，可能会缺glibc，如需自行编译请参考github action配置。
+
+此项目为新手练手项目，欢迎各位大佬PR 批评指正。
 
 ## 部署
 
@@ -24,14 +30,16 @@
 
 ## 文件清单（运行时程序自动创建）
 
-1. `.env`：配置文件
-2. `blacklist.json`：黑名单信息
+1. `.env`：配置文件（请参考仓库配置）
+2. `blacklist.json`：黑名单信息（请参考仓库配置）
 3. `thesaurus.txt`：base64编码后的黑名单词库，主要为摄政词库
+4. `whitelist.json`：白名单信息（请参考仓库配置）
+5. `advance.json`：高级缓存配置项（请参考仓库配置）
 
 ## 默认返回
 
-1.  `/` 目录将会返回程序运行目录下的source/index.html，需自行配置并修改，包括`/index.js` `/index.css`
-2.  `/favicon.ico` 图标，需放置在程序运行目录下
+1.  `/` 目录将会返回程序运行目录下的source/index.html，需自行配置并修改，包括`/index.js` `/index.css`。
+2.  `/favicon.ico` 图标，需放置在程序运行目录下。
 3.  `/static` 目录下文件将对应服务端运行目录。
 
 ## `.env`配置说明
@@ -45,12 +53,14 @@
 | PORN                    | 0.6                       | 违禁阈值，一般0.6视为违规 |
 | NPMMirrow_PREFIX        | https://registry.npmmirror.com/| npm代理地址 |
 | GHRaw_PREFIX      | https://raw.githubusercontent.com/| Github raw代理地址 |
-| PROXY_MODE    | jsd                      | 镜像模式，填写jsd为jsd镜像，填写local为自取源      |
+| PROXY_MODE    | jsd                      | 镜像模式，填写jsd为jsd镜像，填写local为自取源，填写advance为高级配置，需修改advance.json配置项。支持多网关并发请求，服务端会返回最快响应。且支持自行配置更多缓存内容。 |
 | EXIPRES    | 6                      | 缓存过期时间      |
 | REDIS_ADDR      | localhost:6379 | redis服务器地址及端口 |
 | REDIS_PASSWORD    | 114514                     | redis密码，可以为空      |
 | REDIS_DB    | 5                      | redis使用数据库名，int，确保没有冲突再填写      |
 | RUN_MODE    | blacklist                      | 运行模式，可选blacklist or whitelist，运行模式为白名单或黑名单，白名单时将以白名单内内容做为校验，同时黑路径黑名单也会生效，黑名单与白名单参考blacklist.json和whitelist.json     |
+| REJECTION_METHOD | 403 | 拒绝方式：301或403，当填写301时还需要自行配置301_URL（比如该referer或者path不在白名单中或者处于黑名单中，将会以你设置的其中一种状态码作为处理） |
+| 301_URL | https://cdn.jsdelivr.net/ | 当REJECTION_METHOD=301时，将会把非白名单请求重定向至配置的url |
 
 ## 图片处理
 
@@ -68,16 +78,3 @@
 	"height": 302
    }
    ```
-
-
-## 黑名单信息
-
-blacklist.json用于存放黑名单信息，与二进制文件同目录，且在redis数据库中也加载有此json内容。
-
-blacklist.json优先级高于redis存储内容。
-
-可以通过修改json文件或者使用API增加黑名单信息。
-
-当某一文件触发关键词后，会自动将信息加载进入黑名单并返回403。
-
-当图片触发图片识别时，会自动将信息加载进入黑名单并返回403。

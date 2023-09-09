@@ -16,7 +16,7 @@ var (
 )
 
 var (
-	//go:embed source/thesaurus.txt
+	//go:embed thesaurus.txt
 	thesaurusData embed.FS
 )
 
