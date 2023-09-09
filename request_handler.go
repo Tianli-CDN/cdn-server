@@ -53,30 +53,50 @@ func handleRequest(c *gin.Context) {
 	if isBlacklistMode() {
 		// 检查路径黑名单
 		if isPathBlacklisted("/" + pathAll) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "路径被禁止访问", "hitokoto": hitokoto()})
+			if RejectionMethod == "301" {
+				c.Redirect(http.StatusMovedPermanently, RedirectUrl+pathAll)
+			} else {
+				c.JSON(http.StatusForbidden, gin.H{"error": "路径被禁止访问", "hitokoto": hitokoto()})
+			}
 			return
 		}
 
 		// 检查Referer黑名单
 		if isRefererBlacklisted(referer) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Referer被禁止访问", "hitokoto": hitokoto()})
+			if RejectionMethod == "301" {
+				c.Redirect(http.StatusMovedPermanently, RedirectUrl+pathAll)
+			} else {
+				c.JSON(http.StatusForbidden, gin.H{"error": "路径被禁止访问", "hitokoto": hitokoto()})
+			}
 			return
 		}
 	} else {
 		// 检查路径黑名单
 		if isPathBlacklisted("/" + pathAll) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "路径被禁止访问", "hitokoto": hitokoto()})
+			if RejectionMethod == "301" {
+				c.Redirect(http.StatusMovedPermanently, RedirectUrl+pathAll)
+			} else {
+				c.JSON(http.StatusForbidden, gin.H{"error": "路径被禁止访问", "hitokoto": hitokoto()})
+			}
 			return
 		}
 		// 检查路径白名单
 		if !isPathWhitelisted("/" + pathAll) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "路径未被授权访问", "hitokoto": hitokoto()})
+			if RejectionMethod == "301" {
+				c.Redirect(http.StatusMovedPermanently, RedirectUrl+pathAll)
+			} else {
+				c.JSON(http.StatusForbidden, gin.H{"error": "路径被禁止访问", "hitokoto": hitokoto()})
+			}
 			return
 		}
 
 		// 检查Referer白名单
 		if !isRefererWhitelisted(referer) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Referer未被授权访问", "hitokoto": hitokoto()})
+			if RejectionMethod == "301" {
+				c.Redirect(http.StatusMovedPermanently, RedirectUrl+pathAll)
+			} else {
+				c.JSON(http.StatusForbidden, gin.H{"error": "路径被禁止访问", "hitokoto": hitokoto()})
+			}
 			return
 		}
 	}

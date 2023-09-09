@@ -24,6 +24,8 @@ var (
 	Redis_DB              string
 	Redis_DB_int          int
 	RunMode               string
+	RejectionMethod       string
+	RedirectUrl           string
 )
 
 func createConfigFile() {
@@ -47,6 +49,8 @@ func createConfigFile() {
 	file.WriteString("REDIS_PASSWORD=\n")
 	file.WriteString("REDIS_DB=5\n")
 	file.WriteString("RUN_MODE=blacklist\n")
+	file.WriteString("REJECTION_METHOD=403\n")
+	file.WriteString("301_url=https://cdn.jsdelivr.net/\n")
 }
 
 func loadconfig() {
@@ -87,6 +91,8 @@ func loadconfig() {
 		Redis_DB_int = 5
 	}
 	RunMode = os.Getenv("RUN_MODE")
+	RejectionMethod = os.Getenv("REJECTION_METHOD")
+	RedirectUrl = os.Getenv("301_url")
 
 	if apiKey == "" || pornStr == "" || jsdelivrPrefix == "" || expiresTimeStr == "" || proxyMode == "" || Redis_addr == "" || Redis_DB == "" || RunMode == "" {
 		fmt.Println("配置文件错误，已重置为默认配置")
@@ -116,5 +122,8 @@ func loadconfig() {
 	fmt.Println("Redis密码:", Redis_password)
 	fmt.Println("Redis数据库:", Redis_DB)
 	fmt.Println("运行模式:", RunMode)
-
+	fmt.Println("拒绝方式:", RejectionMethod)
+	if RejectionMethod == "301" {
+		fmt.Println("301跳转地址:", RedirectUrl)
+	}
 }
