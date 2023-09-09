@@ -1,4 +1,4 @@
-# Tianli-cdn-server (静态资源缓存服务器)
+# Tianli-cdn-server (静态资源缓存服务端)
 
 ## 恭喜你发现屎山！！！
 
@@ -12,7 +12,7 @@
 
 1. 确保安装redis
 
-2. 确保启用NSFW-api
+2. 可选启用NSFW-api
 
    ```bash
    docker run -p 6012:3000 ghcr.io/arnidan/nsfw-api:latest
