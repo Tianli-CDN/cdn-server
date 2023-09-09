@@ -1,0 +1,25 @@
+{
+    "pathlist": [
+        {
+            "paths": [
+                "gh",
+                "github"
+            ],
+            "url": [
+                "https://gcore.jsdelivr.net/gh",
+                "https://cdn.jsdelivr.net/gh",
+                "https://fastly.jsdelivr.net/gh"
+            ]
+        },
+        {
+            "paths": [
+                "npm"
+            ],
+            "url": [
+                "https://gcore.jsdelivr.net/npm",
+                "https://cdn.jsdelivr.net/npm",
+                "https://fastly.jsdelivr.net/npm"
+            ]
+        }
+    ]
+}

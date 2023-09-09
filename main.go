@@ -32,6 +32,7 @@ func main() {
 	})
 	loadWhitelist()
 	loadBlacklist()
+	loadAdvance()
 
 	_, err := redisClient.Ping().Result()
 	if err != nil {
@@ -57,6 +58,8 @@ func main() {
 		api.POST("/whitelist/update_refer", updateReferWhitelist)
 		api.POST("/clear_cache", clearCache)
 		api.POST("/clear_all_cache", clearAllcache)
+		api.GET("/get_advance", getAdvance)
+		api.POST("/set_advance", setAdvance)
 	}
 
 	// 设置请求处理函数

@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,13 @@ type NSFWResponse struct {
 	Hentai  float64 `json:"hentai"`
 	Neutral float64 `json:"neutral"`
 	Drawing float64 `json:"drawing"`
+}
+
+type AdvanceConfig struct {
+	PathList []struct {
+		Paths []string `json:"paths"`
+		URL   []string `json:"url"`
+	} `json:"pathlist"`
 }
 
 type HTTPResponse struct {
@@ -109,6 +117,22 @@ func handleRequest(c *gin.Context) {
 		}
 		contentTypes = httpResponse.ContentType
 		body = httpResponse.Body
+	} else if proxyMode == "advance" {
+		// 调用advance模式处理函数
+		advanceResponse, err := makeAdvanceRequest(pathAll)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "请求失败", "hitokoto": hitokoto()})
+			// 打印错误信息
+			fmt.Println(err)
+			return
+		}
+		contentTypes = advanceResponse.ContentType
+		body = advanceResponse.Body
+	} else {
+		c.JSON(http.StatusNotFound, gin.H{"error": "请求失败", "hitokoto": hitokoto()})
+		// 打印错误信息
+		fmt.Println("未知的代理模式")
+		return
 	}
 
 	if params != "" && isImage(contentTypes) {
@@ -336,7 +360,171 @@ func makeLocalRequest(pathAll string) (*HTTPResponse, error) {
 	return nil, fmt.Errorf("请求失败，状态码: %d", 404)
 }
 
+func makeAdvanceRequest(pathAll string) (*HTTPResponse, error) {
+
+	fmt.Println("请求路径：" + pathAll)
+
+	go loadAdvance()
+	advanceData, err := redisClient.Get("advance.json").Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("读取advance.json文件失败: %v", err)
+	}
+
+	var advanceConfig AdvanceConfig
+	err = json.Unmarshal(advanceData, &advanceConfig)
+	if err != nil {
+		return nil, fmt.Errorf("解析advance.json数据失败: %v", err)
+	}
+
+	// 遍历配置列表，查找匹配的路径
+	for _, config := range advanceConfig.PathList {
+		for _, pathPattern := range config.Paths {
+			match, err := regexp.MatchString(pathPattern, pathAll)
+			if err != nil {
+				return nil, fmt.Errorf("正则表达式匹配失败: %v", err)
+			}
+			pathAll = strings.Replace(pathAll, pathPattern, "", 1)
+			if match {
+				// 并发请求多个URL，返回最快的响应
+				responses := make(chan *HTTPResponse, len(config.URL))
+				errors := make(chan error, len(config.URL))
+				var wg sync.WaitGroup
+
+				for _, url := range config.URL {
+					wg.Add(1)
+					go func(url string) {
+						defer wg.Done()
+						httpResponse, err := makeRequest(url + pathAll)
+						if err != nil {
+							errors <- fmt.Errorf("请求失败: %v", err)
+						} else {
+							responses <- httpResponse
+						}
+					}(url)
+				}
+
+				// 等待所有请求完成
+				go func() {
+					wg.Wait()
+					close(responses)
+					close(errors)
+				}()
+
+				for {
+					select {
+					case <-responses:
+						// 有请求完成，直接返回
+						return <-responses, nil
+					case err := <-errors:
+						// 请求出错，继续等待其他请求完成
+						fmt.Println(err)
+					}
+				}
+
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("未找到匹配的路径")
+}
+
+func makeRequest(url string) (*HTTPResponse, error) {
+	fmt.Println("源请求URL：" + url)
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %v", err)
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.5412")
+	req.Header.Set("Referer", "https://baidu.com")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("请求失败: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("读取响应失败: %v", err)
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("请求失败，状态码: %d", resp.StatusCode)
+	} else if resp.StatusCode >= http.StatusBadRequest {
+		return nil, fmt.Errorf("请求失败，状态码: %d", resp.StatusCode)
+	}
+
+	contentType := resp.Header.Get("Content-Type")
+
+	response := &HTTPResponse{
+		Body:        body,
+		ContentType: contentType,
+	}
+
+	return response, nil
+}
+
 // 判断是否为图片格式
 func isImage(contentType string) bool {
 	return strings.Contains(contentType, "image")
+}
+
+// 读取本地advance.json文件同步到Redis
+func loadAdvance() {
+	advanceData, err := os.ReadFile("advance.json")
+	if err != nil {
+		fmt.Println("无法读取advance.json文件:", err)
+		return
+	}
+
+	redisClient.Set("advance.json", string(advanceData), 0)
+}
+
+func getAdvance(c *gin.Context) {
+	advanceData, err := redisClient.Get("advance.json").Bytes()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "读取advance.json文件失败", "hitokoto": hitokoto()})
+		return
+	}
+
+	var advanceConfig AdvanceConfig
+	err = json.Unmarshal(advanceData, &advanceConfig)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "解析advance.json数据失败", "hitokoto": hitokoto()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": advanceConfig})
+}
+
+func setAdvance(c *gin.Context) {
+	var advanceConfig AdvanceConfig
+	if c.Query("key") != apiKey {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "无效的API密钥"})
+		return
+	}
+
+	err := c.ShouldBindJSON(&advanceConfig)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "解析JSON数据失败", "hitokoto": hitokoto()})
+		return
+	}
+
+	advanceData, err := json.Marshal(advanceConfig)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "解析JSON数据失败", "hitokoto": hitokoto()})
+		return
+	}
+
+	err = os.WriteFile("advance.json", advanceData, 0644)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "写入advance.json文件失败", "hitokoto": hitokoto()})
+		return
+	}
+
+	redisClient.Set("advance.json", string(advanceData), 0)
+
+	c.JSON(http.StatusOK, gin.H{"data": "设置成功"})
 }

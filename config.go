@@ -107,6 +107,8 @@ func loadconfig() {
 		fmt.Println("代理模式: 自取源")
 		fmt.Println("GitHub Raw镜像地址:", ghrawPrefix)
 		fmt.Println("NPM镜像地址:", npmPrefix)
+	} else if proxyMode == "advance" {
+		fmt.Println("代理模式: 高级")
 	} else {
 		fmt.Println("代理模式: 未知")
 	}
