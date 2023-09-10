@@ -399,12 +399,14 @@ func makeAdvanceRequest(pathAll string) (*HTTPResponse, error) {
 	// 遍历配置列表，查找匹配的路径
 	for _, config := range advanceConfig.PathList {
 		for _, pathPattern := range config.Paths {
-			match, err := regexp.MatchString(pathPattern, pathAll)
+			match, err := regexp.MatchString("^"+pathPattern+"/", pathAll)
 			if err != nil {
 				return nil, fmt.Errorf("正则表达式匹配失败: %v", err)
 			}
-			pathAll = strings.Replace(pathAll, pathPattern, "", 1)
 			if match {
+				re := regexp.MustCompile("^([^/]+)/")
+				pathAll = re.ReplaceAllString(pathAll, "")
+				pathAll = "/" + pathAll
 				// 并发请求多个URL，返回最快的响应
 				responses := make(chan *HTTPResponse, len(config.URL))
 				errors := make(chan error, len(config.URL))
