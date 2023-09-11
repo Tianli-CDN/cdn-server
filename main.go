@@ -40,6 +40,7 @@ func main() {
 		return
 	}
 	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
 
 	// 添加CORS中间件
 	config := cors.DefaultConfig()
