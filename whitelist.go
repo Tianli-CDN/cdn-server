@@ -41,7 +41,6 @@ func isRefererWhitelisted(referer string) bool {
 	}
 
 	for _, item := range whitelist.ReferList {
-		fmt.Printf("Against whitelist item: %s\n", item.Refer)
 		if strings.Contains(referer, item.Refer) {
 			return true
 		}
