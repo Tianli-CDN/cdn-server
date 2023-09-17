@@ -61,6 +61,7 @@ func main() {
 		api.POST("/clear_all_cache", clearAllcache)
 		api.GET("/get_advance", getAdvance)
 		api.POST("/set_advance", setAdvance)
+		api.GET("/cache_info", getCacheInfo)
 	}
 
 	// 设置请求处理函数

@@ -98,3 +98,22 @@ func clearAllcache(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "所有缓存已清除"})
 }
+
+func getCacheInfo(c *gin.Context) {
+	keys, err := redisClient.Keys("*:content-type").Result()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "无法获取缓存信息"})
+		return
+	}
+
+	cacheInfo := make(map[string]int)
+	for _, key := range keys {
+		contentType := strings.Split(redisClient.Get(key).Val(), ";")[0]
+		cacheInfo[contentType]++
+	}
+
+	// 获取数据库大小
+	dbSize := redisClient.DBSize().Val() / 1024 / 1024.0
+
+	c.JSON(http.StatusOK, gin.H{"cache_info": cacheInfo, "db_size": dbSize})
+}
