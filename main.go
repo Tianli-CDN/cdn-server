@@ -28,7 +28,7 @@ func main() {
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     Redis_addr,
 		Password: Redis_password,
-		DB:       Redis_DB_int, // 使用DB5作为缓存数据库
+		DB:       Redis_DB_int,
 	})
 	loadWhitelist()
 	loadBlacklist()
