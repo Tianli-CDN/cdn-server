@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Sleep 4 minutes
         run: sleep 240
 
@@ -30,12 +29,14 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Get version
-        run: export VERSION=$(git describe --tags)
-      
+        id: version
+        run: echo "::set-output name=version::$(git describe --tags)"
+
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:$VERSION .
-      
+          eval $(echo "VERSION=${{ steps.version.outputs.version }}")
+          docker build -t ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} -f ./docker/dockerfile .
+
       - name: Push Docker image
         if: success()
-        run: docker push ${{ env.IMAGE_NAME }}:VERSION
+        run: docker push ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
