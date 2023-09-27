@@ -1,9 +1,7 @@
 FROM ubuntu:latest
 
-ARG BUILD_VERSION
-
 RUN apt-get update && apt-get install -y wget \
-    && wget -O /usr/local/bin/tianlicdn https://github.com/Tianli-CDN/cdn-server/releases/download/$BUILD_VERSION/tianlicdn-linux-amd64 \
+    && wget -O /usr/local/bin/tianlicdn https://github.com/Tianli-CDN/cdn-server/releases/download/$VERSION/tianlicdn-linux-amd64 \
     && chmod +x /usr/local/bin/tianlicdn
 
 WORKDIR /app

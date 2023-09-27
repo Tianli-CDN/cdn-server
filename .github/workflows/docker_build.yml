@@ -29,13 +29,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Update Dockerfile with tag
-        run: sed -i "s/\$BUILD_VERSION/${{ github.event.ref }}/g" /docker/dockerfile
+      - name: Get version
+        run: export VERSION=$(git describe --tags)
       
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:${{ github.event.ref }} .
+          docker build -t ${{ env.IMAGE_NAME }}:$VERSION .
       
       - name: Push Docker image
         if: success()
-        run: docker push ${{ env.IMAGE_NAME }}:${{ github.event.ref }}
+        run: docker push ${{ env.IMAGE_NAME }}:VERSION
