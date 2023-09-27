@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Sleep 4 minutes
-        run: sleep 240
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,6 +32,7 @@ jobs:
 
       - name: Build Docker image
         run: |
+          apt-get update && apt-get install -y ca-certificates
           eval $(echo "VERSION=${{ steps.version.outputs.version }}")
           docker build -t ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} -f ./docker/dockerfile .
 
