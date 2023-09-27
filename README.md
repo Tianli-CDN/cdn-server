@@ -4,6 +4,8 @@
 
 ## 调用API文档：[API](https://console-docs.apipost.cn/preview/877a53de056aef04/6f7d9d05f50db9e6)
 
+[![Docker](https://github.com/Tianli-CDN/cdn-server/actions/workflows/docker_build.yml/badge.svg)](https://github.com/Tianli-CDN/cdn-server/actions/workflows/docker_build.yml)
+
 注意：库包含CGO，不支持交叉编译（MAC OS除外，但需要使用交叉编译链），同时尽量不要使用linux编译，部分系统可能会缺glibc，如需自行编译请参考github action配置。
 
 此项目为新手练手项目，欢迎各位大佬PR 批评指正。
