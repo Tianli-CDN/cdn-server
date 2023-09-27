@@ -8,7 +8,37 @@
 
 此项目为新手练手项目，欢迎各位大佬PR 批评指正。
 
-## 部署
+## docker部署
+
+### 带redis环境
+
+适用于无redis的服务器
+
+### 不携带redis环境
+
+适用于主机包含redis的服务器
+
+1. 拉取镜像
+
+   ```shell
+   
+   ```
+
+   
+
+2. 1. 在你所需的文件目录新建`.env`文件，注意参考仓库内`.env`配置
+   2. 创建`/source/index.html` `/source/index.js` `/source/index.css`
+   3. 如果您有需要，请参考仓库内并配置`whitelist.json` `advance.json` `blacklist.json`
+
+3. 运行docker容器，注意将`/yourpath/`替换为你的文件目录。
+
+   ```shell
+   docker run -d --network=host -p 5012:5012 -v /yourpath/:/app/ tianlicdn-image
+   ```
+
+   
+
+## 二进制 部署
 
 1. 确保安装redis
 
@@ -28,7 +58,7 @@
 
 6. 程序会运行在`5012`端口，使用Nginx反向代理5012端口
 
-## 文件清单（运行时程序自动创建）
+## 文件清单
 
 1. `.env`：配置文件（请参考仓库配置）
 2. `blacklist.json`：黑名单信息（请参考仓库配置）
@@ -46,7 +76,7 @@
 
 | 配置项                  | 示例                      | 说明                      |
 | ----------------------- | ------------------------- | ------------------------- |
-| API_KEY                 | 114514s                   | 配置API密钥，用于API鉴权  |
+| API_KEY                 | 114514s                   | 配置API密钥，用于API鉴权，建议复杂 |
 | ENABLE_KEYWORD_CHECKING | true                      | 是否启用关键词检测        |
 | ENABLE_NSFW_CHECKING    | true                      | 是否启用图片违禁检测      |
 | JSDELIVR_PREFIX         | https://cdn.jsdelivr.net/ | 代理地址，注意`/`不要遗漏 |
