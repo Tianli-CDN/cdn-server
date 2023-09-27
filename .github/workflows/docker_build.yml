@@ -7,8 +7,6 @@ on:
 
 env:
   IMAGE_NAME: tianli-cdn
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 jobs:
   build-and-push:
