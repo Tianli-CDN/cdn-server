@@ -34,8 +34,8 @@ jobs:
         run: |
           apt-get update && apt-get install -y ca-certificates
           eval $(echo "VERSION=${{ steps.version.outputs.version }}")
-          docker build -t ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} -f ./docker/dockerfile .
+          docker build -t ${{ env.IMAGE_NAME }} -f ./docker/dockerfile .
 
       - name: Push Docker image
         if: success()
-        run: docker push ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+        run: docker push ${{ env.IMAGE_NAME }}

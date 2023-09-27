@@ -8,20 +8,18 @@
 
 此项目为新手练手项目，欢迎各位大佬PR 批评指正。
 
+## 基础环境
+
+1. 需要主机拥有redis环境
+
 ## docker部署
-
-### 带redis环境
-
-适用于无redis的服务器
-
-### 不携带redis环境
 
 适用于主机包含redis的服务器
 
 1. 拉取镜像
 
    ```shell
-   
+   docker pull tianli0/tianli-cdn
    ```
 
    
@@ -33,7 +31,7 @@
 3. 运行docker容器，注意将`/yourpath/`替换为你的文件目录。
 
    ```shell
-   docker run -d --network=host -p 5012:5012 -v /yourpath/:/app/ tianlicdn-image
+   docker run -d --network=host -p 5012:5012 -v /yourpath/:/app/ tianli0/tianli-cdn
    ```
 
    
