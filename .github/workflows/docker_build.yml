@@ -35,7 +35,7 @@ jobs:
       - name: Build Docker image
         run: |
           apt-get update && apt-get install -y ca-certificates
-          docker build -t ${{ env.IMAGE_NAME }} -f --build-arg VERSION=${{ steps.version.outputs.version }} ./docker/dockerfile .
+          docker build -t ${{ env.IMAGE_NAME }} --build-arg VERSION=${{ steps.version.outputs.version }} -f ./docker/dockerfile .
 
       - name: Push Docker image
         if: success()
