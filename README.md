@@ -10,13 +10,65 @@
 
 此项目为新手练手项目，欢迎各位大佬PR 批评指正。
 
+## 默认返回
+
+1.  `/` 目录将会返回程序运行目录下的`source/index.html`，需自行配置并修改，包括`source/index.js` `source/index.css`。
+2.  `/favicon.ico` 图标，需放置在程序运行目录下。
+3.  `/static` 目录下静态文件将映射至服务端。
+
+## 图片处理
+
+1. 图片压缩，图片可以转webp，需跟随参数`?webp=true`
+
+2. 图片主色调获取，需跟随参数`?get=theme`
+
+   ```json
+   {
+   "theme": "#eaeaed"
+   }
+   ```
+
+3. 图片高度宽度获取，需跟随参数`?get=size` 
+
+   ```json
+   {
+   "width": 1660,
+   "height": 302
+   }
+   ```
+
 ## 基础环境
 
 1. 需要主机拥有redis环境
 
+2. 可选部署NSFW鉴权,需要docker运行以下指令（注意：NSFW鉴权AI会严重加重服务器负载，请酌情使用）
+
+   ```shell
+   docker run -p 6012:3000 ghcr.io/arnidan/nsfw-api:latest
+   ```
+
 ## docker部署
 
-适用于主机包含redis的服务器
+### 适用于主机包含redis的服务器
+
+1. 拉取镜像
+
+   ```shell
+   docker pull tianli0/tianli-cdn:redis
+   ```
+
+2. 1. 在你所需的文件目录新建`.env`文件，注意参考仓库内`.env`配置（无需配置redis相关）
+   2. 创建`/source/index.html` `/source/index.js` `/source/index.css` 
+   3. 如果您有需要，请参考仓库内并配置`whitelist.json` `advance.json` `blacklist.json`
+
+3. 运行docker容器，注意将`/yourpath/`替换为你的文件目录。
+
+   ```shell
+   docker run -d --network=host -p 5012:5012 -v /yourpath/:/app/ tianli0/tianli-cdn:redis
+   ```
+
+
+### 适用于主机无redis的服务器
 
 1. 拉取镜像
 
@@ -24,9 +76,7 @@
    docker pull tianli0/tianli-cdn
    ```
 
-   
-
-2. 1. 在你所需的文件目录新建`.env`文件，注意参考仓库内`.env`配置
+2. 1. 在你所需的文件目录新建`.env`文件，注意参考仓库内`.env`配置()
    2. 创建`/source/index.html` `/source/index.js` `/source/index.css`
    3. 如果您有需要，请参考仓库内并配置`whitelist.json` `advance.json` `blacklist.json`
 
@@ -36,26 +86,14 @@
    docker run -d --network=host -p 5012:5012 -v /yourpath/:/app/ tianli0/tianli-cdn
    ```
 
-   
+
 
 ## 二进制 部署
 
 1. 确保安装redis
-
-2. 可选启用NSFW-api
-
-   ```bash
-   docker run -p 6012:3000 ghcr.io/arnidan/nsfw-api:latest
-   ```
-
-   
-
-3. 前往release下载对应架构二进制文件
-
-4. 运行可执行文件并配置保活进程，首次启动会自动创建`.env`配置文件，注意自行修改。
-
-5. 配置保活进程，使程序运行在后台，Linux可使用例如`screen`
-
+2. 前往release下载对应架构二进制文件
+3. 运行可执行文件并配置保活进程，首次启动会自动创建`.env`配置文件，注意自行修改。
+4. 配置保活进程，使程序运行在后台，Linux可使用例如`screen`
 6. 程序会运行在`5012`端口，使用Nginx反向代理5012端口
 
 ## 文件清单
@@ -66,11 +104,7 @@
 4. `whitelist.json`：白名单信息（请参考仓库配置）
 5. `advance.json`：高级缓存配置项（请参考仓库配置）
 
-## 默认返回
 
-1.  `/` 目录将会返回程序运行目录下的source/index.html，需自行配置并修改，包括`/index.js` `/index.css`。
-2.  `/favicon.ico` 图标，需放置在程序运行目录下。
-3.  `/static` 目录下文件将对应服务端运行目录。
 
 ## `.env`配置说明
 
@@ -91,25 +125,6 @@
 | RUN_MODE    | blacklist                      | 运行模式，可选blacklist or whitelist，运行模式为白名单或黑名单，白名单时将以白名单内内容做为校验，同时黑路径黑名单也会生效，黑名单与白名单参考blacklist.json和whitelist.json     |
 | REJECTION_METHOD | 403 | 拒绝方式：301或403，当填写301时还需要自行配置301_URL（比如该referer或者path不在白名单中或者处于黑名单中，将会以你设置的其中一种状态码作为处理） |
 | 301_URL | https://cdn.jsdelivr.net/ | 当REJECTION_METHOD=301时，将会把非白名单请求重定向至配置的url |
-
-## 图片处理
-
-1. 图片压缩，图片可以转webp，需跟随参数`?webp=true`
-2. 图片主色调获取，需跟随参数`?get=theme`
-   ```json
-   {
-	"theme": "#eaeaed"
-   }
-   ```
-3. 图片高度宽度获取，需跟随参数`?get=size` 
-   ```json
-   {
-	"width": 1660,
-	"height": 302
-   }
-   ```
-
-
 
 ## 高级配置
 

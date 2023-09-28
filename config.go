@@ -84,6 +84,9 @@ func loadconfig() {
 	ghrawPrefix = os.Getenv("GHRaw_PREFIX")
 	npmPrefix = os.Getenv("NPMMirrow_PREFIX")
 	Redis_addr = os.Getenv("REDIS_ADDR")
+	if Redis_addr == "" {
+		Redis_addr = "localhost:6379"
+	}
 	Redis_password = os.Getenv("REDIS_PASSWORD")
 	Redis_DB = os.Getenv("REDIS_DB")
 	Redis_DB_int, err = strconv.Atoi(Redis_DB)
