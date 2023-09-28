@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Wait for Go build to finish
+        run: sleep 240
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,8 +35,7 @@ jobs:
       - name: Build Docker image
         run: |
           apt-get update && apt-get install -y ca-certificates
-          eval $(echo "VERSION=${{ steps.version.outputs.version }}")
-          docker build -t ${{ env.IMAGE_NAME }} -f ./docker/dockerfile .
+          docker build -t ${{ env.IMAGE_NAME }} -f --build-arg VERSION=${{ steps.version.outputs.version }} ./docker/dockerfile .
 
       - name: Push Docker image
         if: success()
