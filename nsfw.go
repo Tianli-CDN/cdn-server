@@ -22,10 +22,8 @@ type Setu struct {
 }
 
 func detectNSFW(imageData []byte, pathAll string) (NSFWResult, error) {
-
 	imageType := http.DetectContentType(imageData)
 	if imageType == "image/webp" {
-
 		pngData, err := convertWebpToPng(imageData)
 		if err != nil {
 			return NSFWResult{}, fmt.Errorf("转换图片格式失败：%v", err)
@@ -34,14 +32,21 @@ func detectNSFW(imageData []byte, pathAll string) (NSFWResult, error) {
 	}
 
 	for len(imageData) > 1024*1024 {
-
 		compressedData, err := compressImage(imageData)
-
-		os.WriteFile("compressed.jpg", compressedData, 0644)
 		if err != nil {
 			return NSFWResult{}, fmt.Errorf("压缩图片失败：%v", err)
 		}
+
+		os.WriteFile("compressed.jpg", compressedData, 0644)
+		if err != nil {
+			return NSFWResult{}, fmt.Errorf("写入压缩图片失败：%v", err)
+		}
+
 		imageData = compressedData
+
+		if len(imageData) <= 1024*1024 {
+			break
+		}
 	}
 
 	body := new(bytes.Buffer)
@@ -86,7 +91,6 @@ func detectNSFW(imageData []byte, pathAll string) (NSFWResult, error) {
 	}
 
 	if nsfwResponse.Porn > Porn {
-
 		setu := Setu{
 			Path: pathAll,
 			NSFW: nsfwResponse,
