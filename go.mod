@@ -3,7 +3,7 @@ module tianli-cdn
 go 1.21
 
 require (
-	github.com/chai2010/webp v1.1.1
+	github.com/chai2010/webp v1.4.0
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis v6.15.9+incompatible
